@@ -1,0 +1,18 @@
+Name:             ghcbug
+Version:          1.0
+Synopsis:         Bug in GHC optimizer
+Cabal-Version:    >= 1.8
+Build-Type:      Simple
+
+executable bug
+  Main-Is: Main.hs
+  Hs-Source-Dirs: src
+  GHC-Options: -O2 -Wall -ddump-minimal-imports
+  Build-depends: base, uuid, containers, lens, pretty, th-path, text, filepath, web-routes, web-routes-th, image-cache, network-uri, safecopy, syb, uuid-types, userid, uuid-orphans, aeson, template-haskell, jmacro, json, mtl, HaTeX, pandoc, sr-revision, ListLike, sr-extra, bytestring, regex-compat, HUnit, groom, th-orphans
+
+
+executable nobug
+  Main-Is: Main.hs
+  Hs-Source-Dirs: src
+  GHC-Options: -O0 -Wall
+  Build-depends: base, uuid, containers, lens, pretty, th-path, text, filepath, web-routes, web-routes-th, image-cache, network-uri, safecopy, syb, uuid-types, userid, uuid-orphans, aeson, template-haskell, jmacro, json, mtl, HaTeX, pandoc, sr-revision, ListLike, sr-extra, bytestring, regex-compat, HUnit, groom, th-orphans
