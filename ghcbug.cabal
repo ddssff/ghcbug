@@ -8,11 +8,11 @@ executable bug
   Main-Is: Main.hs
   Hs-Source-Dirs: src
   GHC-Options: -O2 -Wall -ddump-minimal-imports
-  Build-depends: base, uuid, containers, lens, pretty, th-path, text, filepath, web-routes, web-routes-th, network-uri, safecopy, syb, uuid-types, userid, uuid-orphans, aeson, template-haskell, jmacro, json, mtl, HaTeX, pandoc, ListLike, sr-extra, bytestring, regex-compat, HUnit, groom, th-orphans, pureMD5, directory, Unixutils, exceptions, utf8-string, hslogger, process, process-extras, binary, transformers, unix
+  Build-depends: base, uuid, containers, lens, pretty, text, filepath, web-routes, web-routes-th, network-uri, safecopy, syb, uuid-types, userid, uuid-orphans, aeson, template-haskell, jmacro, json, mtl, HaTeX, pandoc, ListLike, sr-extra, bytestring, regex-compat, HUnit, groom, th-orphans, pureMD5, directory, Unixutils, exceptions, utf8-string, hslogger, process, process-extras, binary, transformers, unix, applicative-extras, safe, mtl-unleashed, base-compat, haskell-src-exts, th-kinds, th-typegraph, th-context, th-desugar
 
 
 executable nobug
   Main-Is: Main.hs
   Hs-Source-Dirs: src
   GHC-Options: -O0 -Wall
-  Build-depends: base, uuid, containers, lens, pretty, th-path, text, filepath, web-routes, web-routes-th, network-uri, safecopy, syb, uuid-types, userid, uuid-orphans, aeson, template-haskell, jmacro, json, mtl, HaTeX, pandoc, ListLike, sr-extra, bytestring, regex-compat, HUnit, groom, th-orphans, pureMD5, directory, Unixutils, exceptions, utf8-string, hslogger, process, process-extras, binary, transformers, unix
+  Build-depends: base, uuid, containers, lens, pretty, text, filepath, web-routes, web-routes-th, network-uri, safecopy, syb, uuid-types, userid, uuid-orphans, aeson, template-haskell, jmacro, json, mtl, HaTeX, pandoc, ListLike, sr-extra, bytestring, regex-compat, HUnit, groom, th-orphans, pureMD5, directory, Unixutils, exceptions, utf8-string, hslogger, process, process-extras, binary, transformers, unix, applicative-extras, safe, mtl-unleashed, base-compat, haskell-src-exts, th-kinds, th-typegraph, th-context, th-desugar
