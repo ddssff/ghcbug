@@ -48,7 +48,7 @@ import Data.Char (isDigit, toLower)
 import Data.Function (on)
 import Data.Generics (Data, everywhere, mkT, Typeable)
 import Data.Int (Int64)
-import qualified Data.IxSet.Revision as R (Ident(..), Revision(..), RevisionInfo(..))
+-- import qualified Data.IxSet.Revision as R (Ident(..), Revision(..), RevisionInfo(..))
 import Control.Lens (Lens', lens)
 import Data.List as List (groupBy, sortBy)
 import qualified Data.ListLike as LL
@@ -159,9 +159,6 @@ data ReportElem
     | ReportParagraph {_elemText :: Markup}
     | ReportUndecided
     deriving (Read, Show, Eq, Ord, Typeable, Data)
-
-deriving instance Show (R.Revision R.Ident)
-deriving instance Show (R.RevisionInfo R.Ident)
 
 data ReportStatus
     = Draft
