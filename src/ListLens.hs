@@ -18,12 +18,13 @@ import Text.PrettyPrint.HughesPJClass (Pretty, prettyShow)
 listReorder :: (WhichList, [ElemID]) -> ReportID -> ReportMap -> (ReportMap, [String])
 listReorder which rid rmp =
   case which of
-    (ElementList, ps) -> listReorder'' rid rmp (map SiteMap.unReportElemID ps) (toLens (Path_ReportMap_unReportMap (Path_Look rid (Path_Report_View (Path_ReportView__reportBody Path_OMap)))) :: Traversal' ReportMap ReportElems)
-    (ItemImage _, _) -> listReorder'' undefined undefined undefined (undefined :: Traversal' ReportMap ReportImages)
+    (ElementList, ps) ->
+        listReorder'' rmp (map SiteMap.unReportElemID ps) (toLens (Path_ReportMap_unReportMap (Path_Look rid (Path_Report_View (Path_ReportView__reportBody Path_OMap)))) :: Traversal' ReportMap ReportElems)
+    (ItemImage _, _) -> listReorder'' undefined undefined (undefined :: Traversal' ReportMap ReportImages)
 
 listReorder'' :: forall k v. (Pretty k, Enum k, OrderKey k) =>
-                 ReportID -> ReportMap -> [k] -> Traversal' ReportMap (Order k v) -> (ReportMap, [String])
-listReorder'' _rid rmp ps lns =
+                 ReportMap -> [k] -> Traversal' ReportMap (Order k v) -> (ReportMap, [String])
+listReorder'' rmp ps lns =
     maybe (rmp, []) reorder (rmp ^? lns)
     where
       reorder xs =
