@@ -14,7 +14,7 @@ import Appraisal.Markup (Markup, markupText)
 import Appraisal.ReportImage(ReportImages)
 import Data.Generics (Data, Typeable)
 import Data.Map as Map (Map, lookup)
-import Data.SafeCopy (deriveSafeCopy, base)
+--import Data.SafeCopy (deriveSafeCopy, base)
 import qualified Data.Text as T
 import Language.Haskell.TH.Path.Graph (SelfPath)
 
@@ -43,7 +43,9 @@ data ItemFieldName
     | ItemCashValue
     deriving (Show, Read, Eq, Ord, Data, Typeable)
 
+{-
 $(deriveSafeCopy 2 'base ''ItemFieldName)
+-}
 
 instance SelfPath ItemFieldName
 
@@ -66,5 +68,7 @@ getItemFieldValue name item =
 instance Priceable Item where
     cashValue item = parseCashValue $ T.unpack $ markupText $ getItemFieldValue ItemCashValue item
 
+{-
 $(deriveSafeCopy 7 'base ''Item)
+-}
 

@@ -19,7 +19,7 @@ module Appraisal.Image
 import Data.Generics(Data, Typeable)
 import Control.Lens (Lens', iso)
 import Data.Monoid ((<>))
-import Data.SafeCopy (deriveSafeCopy, base)
+--import Data.SafeCopy (deriveSafeCopy, base)
 import qualified Text.LaTeX.Base.Syntax as LaTeX (Measure(In, Cm, Pt))
 import Text.LaTeX.Packages.Graphicx (IGOption(IGWidth))
 import Text.PrettyPrint.HughesPJClass (Pretty(pPrint), text)
@@ -52,7 +52,7 @@ data ImageCrop
       , bottomCrop :: Int
       , leftCrop :: Int
       , rightCrop :: Int
-      , rotation :: Int		-- 0, 90, 180, 270
+      , rotation :: Int
       } deriving (Show, Read, Eq, Ord, Typeable, Data)
 
 -- | Access to the original dimensions of the image, so
@@ -157,10 +157,12 @@ latexWidth p sz =
       unitsToMeasureCon Cm = LaTeX.Cm
       unitsToMeasureCon Points = LaTeX.Pt
 
+{-
 $(deriveSafeCopy 1 'base ''ImageSize)
 $(deriveSafeCopy 0 'base ''Dimension)
 $(deriveSafeCopy 0 'base ''Units)
 $(deriveSafeCopy 0 'base ''ImageCrop)
+-}
 
 instance Pretty Dimension where
     pPrint TheHeight = text "h"

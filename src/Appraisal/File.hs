@@ -17,31 +17,11 @@ module Appraisal.File
     , FileSource(..)
     ) where
 
-import Appraisal.Utils.ErrorWithIO (logException, readCreateProcessWithExitCode')
 import Control.Applicative ((<$>))
-import Control.Exception (IOException)
-import Control.Monad.Catch (MonadCatch)
-import Control.Monad.Except (MonadError, catchError, throwError)
 import Control.Monad.Reader (ReaderT, ask)
-import Control.Monad.Trans (MonadIO, liftIO)
-import qualified Data.ByteString.Lazy.Char8 as Lazy
-#ifdef LAZYIMAGES
-import qualified Data.ByteString.Lazy as P
-#else
-import qualified Data.ByteString as P
-#endif
-import Data.Digest.Pure.MD5 (md5)
 import Data.Generics (Data(..), Typeable)
 import Data.Monoid ((<>))
-import Data.SafeCopy (deriveSafeCopy, base)
 import Network.URI (URI(..), URIAuth(..), parseRelativeReference, parseURI)
-import System.Directory (doesFileExist, renameFile)
-import System.Exit (ExitCode(..))
-import System.IO (openBinaryTempFile)
-import System.Log.Logger (logM, Priority(DEBUG))
-import System.Process (proc, shell, showCommandForUser)
-import System.Process.ListLike (readCreateProcessWithExitCode)
-import System.Unix.FilePath ((<++>))
 import Text.PrettyPrint.HughesPJClass (Pretty(pPrint), text)
 
 newtype FileCacheTop = FileCacheTop {unFileCacheTop :: FilePath} deriving Show
@@ -74,7 +54,9 @@ data File
 instance Pretty File where
     pPrint (File _ cksum _) = text ("File(" <> show cksum <> ")")
 
+{-
 $(deriveSafeCopy 1 'base ''File)
 $(deriveSafeCopy 1 'base ''FileSource)
 $(deriveSafeCopy 0 'base ''URI)
 $(deriveSafeCopy 0 'base ''URIAuth)
+-}

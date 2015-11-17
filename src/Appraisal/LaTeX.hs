@@ -43,7 +43,7 @@ module Appraisal.LaTeX
 import Appraisal.Utils.List (terminate)
 import Data.Generics (Data, Typeable)
 import qualified Data.List as L (intersperse)
-import Data.SafeCopy (base, deriveSafeCopy)
+--import Data.SafeCopy (base, deriveSafeCopy)
 import qualified Data.Text as T (pack, Text)
 import Prelude hiding (lines)
 import Text.LaTeX (raw, lnbk)
@@ -75,10 +75,12 @@ deriving instance Typeable TeXArg
 cooked :: Monad m => T.Text -> LaTeXT m ()
 cooked = texy
 
+{-
 $(deriveSafeCopy 1 'base ''LaTeX)
 $(deriveSafeCopy 1 'base ''MathType)
 $(deriveSafeCopy 1 'base ''Measure)
 $(deriveSafeCopy 1 'base ''TeXArg)
+-}
 
 texenv :: Monad m => String -> [LaTeXT m ()] -> LaTeXT m ()
 texenv name xs = liftL (TeXEnv name []) (mconcat xs)

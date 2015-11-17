@@ -19,7 +19,7 @@ import Data.Aeson (ToJSON(toJSON), FromJSON(parseJSON))
 import Data.Generics (Typeable)
 import Data.Int (Int32)
 import Data.Map as Map (fromList, Map, toList)
-import Data.SafeCopy (deriveSafeCopy, base)
+--import Data.SafeCopy (deriveSafeCopy, base)
 import Data.Text as Text (null, pack)
 import Data.Text.Read (decimal, signed)
 import Language.Haskell.TH
@@ -84,7 +84,9 @@ iso_JSONText :: Lens' JSONText String
 iso_JSONText = iso unJSONText JSONText
 
 $(derivePathInfo ''JSONText)
+{-
 $(deriveSafeCopy 1 'base ''JSONText)
+-}
 
 gjsonIso :: Data a => Lens' a JSONText
 gjsonIso = iso (JSONText . encodeJSON) (decodeJSON . unJSONText)

@@ -10,22 +10,19 @@ module Appraisal.ReportImage
     , ReportImageID(..)
     ) where
 
-import Debug.Trace
-
 import Appraisal.Image (ImageSize(..), ImageCrop(..), Dimension(..), Units(..))
 import Appraisal.ImageFile (ImageFile(..))
 import Appraisal.IntJS (deriveOrderJS)
-import Appraisal.LaTeX.Margins (textHeightInInches, textWidthInInches)
 import Appraisal.Markup (Markup)
 import Data.Generics (Data, Typeable)
 import Data.Ratio ((%))
-import Data.SafeCopy (deriveSafeCopy, base)
+--import Data.SafeCopy (deriveSafeCopy, base)
 import Extra.URI ({- instances only -})
 import GHC.Float (fromRat)
 import Language.Haskell.TH.Path.Graph (SelfPath)
 import Network.URI (URI(..))
 import Text.PrettyPrint.HughesPJClass (Pretty(pPrint), text)
-import Web.Routes.TH (derivePathInfo)
+--import Web.Routes.TH (derivePathInfo)
 
 type MaybeImageFile = Maybe ImageFile
 
@@ -55,9 +52,17 @@ enlargedSize edited =
     then ImageSize {dim = TheHeight, size = textHeightInInches, units = Inches}
     else ImageSize {dim = TheWidth, size = textWidthInInches, units = Inches}
 
+-- The left margin is one inch plus hoffset, so create an equal right margin
+textWidthInInches :: Double
+textWidthInInches = 1.0
+textHeightInInches :: Double
+textHeightInInches = 1.0
+
+{-
 $(deriveSafeCopy 4 'base ''ReportImage)
 $(deriveSafeCopy 1 'base ''ReportImageID)
 $(derivePathInfo ''ReportImageID)
+-}
 
 instance Pretty ReportImageID where
     pPrint = text . show . unReportImageID

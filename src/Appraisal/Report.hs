@@ -29,41 +29,25 @@ module Appraisal.Report
       reportBrandingLens
     ) where
 
-import Appraisal.Config (Paths(reports), reportsURIPath)
-import Appraisal.Currency (addCashValues, CashValue, Priceable(..))
 import Appraisal.File (File(File, fileSource, fileChksum, fileMessages), FileSource(TheURI))
 import Appraisal.ImageFile (ImageFile(ImageFile, imageFile, imageFileType, imageFileWidth, imageFileHeight, imageFileMaxVal), ImageType(..))
 import Appraisal.IntJS (deriveOrderJS)
-import Appraisal.Markup as M (Markup, mapChars, rawMarkdown, markupText)
+import Appraisal.Markup as M (Markup)
 import Appraisal.Permissions (Permissions)
 import Appraisal.ReportItem (Item(..))
-import qualified Appraisal.ReportItem as I (Item(fields), ItemFieldName(ItemDataSheetNumber))
 import Appraisal.Utils.CIString (CIString)
 import Appraisal.Utils.Debug (trace'')
-import Appraisal.Utils.List (spanBy)
-import Appraisal.Utils.Text (read)
-import qualified Data.UUID.Types as UUID (toString)
 import Data.UUID.Types (UUID)
-import Data.Char (isDigit, toLower)
-import Data.Function (on)
-import Data.Generics (Data, everywhere, mkT, Typeable)
+import Data.Generics (Data, Typeable)
 import Data.Int (Int64)
--- import qualified Data.IxSet.Revision as R (Ident(..), Revision(..), RevisionInfo(..))
 import Control.Lens (Lens', lens)
-import Data.List as List (groupBy, sortBy)
-import qualified Data.ListLike as LL
-import Data.Map as Map (lookup)
-import Data.Maybe (catMaybes)
-import Data.SafeCopy (base, deriveSafeCopy)
-import Data.Text as T (Text, groupBy, pack, unpack, strip, uncons, empty)
+import Data.Text as T (Text, pack, unpack, strip)
 import Debug.Trace (trace)
 import Language.Haskell.TH.Path.Core (lens_mrs, readShowLens)
 import Language.Haskell.TH.Path.Graph (SelfPath)
-import Language.Haskell.TH.Path.Order as Order (toList, asList)
 import Language.Haskell.TH.Path.View (View(ViewType, viewLens))
 import Data.UUID.Orphans ()
 import Prelude hiding (read)
-import System.FilePath ((</>))
 import Text.PrettyPrint.HughesPJClass (Pretty(pPrint), text)
 import Web.Routes.TH (derivePathInfo)
 
@@ -98,7 +82,9 @@ data Author
     deriving (Read, Show, Eq, Ord, Typeable, Data)
 
 $(deriveOrderJS ''Author)
+{-
 $(deriveSafeCopy 1 'base ''AuthorID)
+-}
 $(derivePathInfo ''AuthorID)
 
 data AuthorFieldLabel
@@ -248,39 +234,6 @@ data ReportElemTypeName
     | CommentaryElem
     deriving (Read, Show, Eq)
 
--- |This is a simplified version of the debian version number
--- comparison algorithm.  It splits a string into numeric and non
--- numeric stretches, and compares the non-numeric portions lexically
--- and the numeric portions as numbers.
-compareVersions :: Markup -> Markup -> Ordering
-compareVersions a b = compareVersions' (markupText a) (markupText b)
-
-compareVersions' :: T.Text -> T.Text -> Ordering
-compareVersions' a b =
-    cmp a' b'
-    where
-      a' :: [Tagged]
-      a' = map (tag . T.strip) (T.groupBy (\ x y -> isDigit x == isDigit y) a)
-      b' :: [Tagged]
-      b' = map (tag . T.strip) (T.groupBy (\ x y -> isDigit x == isDigit y) b)
-      -- Tag the groups
-      tag :: Text -> Tagged
-      tag t =
-          case T.uncons t of
-            Nothing -> Chars T.empty -- Should not happen
-            Just (c, _) | isDigit c -> Digits t
-            Just _ -> Chars t
-      -- Compare tagged groups
-      cmp (Digits x : xs) (Digits y : ys) = case compare (read (T.unpack x) :: Int) (read (T.unpack y) :: Int) of EQ -> cmp xs ys; other -> other
-      cmp (Chars x : xs) (Chars y : ys) = case compare x y of EQ -> cmp xs ys; other -> other
-      cmp (Digits _ : _) (Chars _ : _) = GT
-      cmp (Chars _ : _) (Digits _ : _) = LT
-      cmp (_ : _) [] = GT
-      cmp [] (_ : _) = LT
-      cmp _ _ = EQ
-
-data Tagged = Digits Text | Chars Text
-
 reportBrandingLens :: Lens' Branding Text
 reportBrandingLens = lens getter setter
   where getter NoLogo = pack ""
@@ -328,6 +281,7 @@ reportBrandingLens = lens getter setter
                      [(b,_)] -> b
                      _ -> trace'' ("reportBrandingLens dropping value " ++ unpack x) NoLogo
 
+{-
 $(deriveSafeCopy 1 'base ''Author)
 $(deriveSafeCopy 1 'base ''ReportValueTypeInfo)
 $(deriveSafeCopy 1 'base ''ReportIntendedUse_1)
@@ -343,6 +297,7 @@ $(deriveSafeCopy 1 'base ''ReportElemID)
 $(deriveSafeCopy 1 'base ''MarkupPairID)
 $(deriveSafeCopy 1 'base ''AbbrevPairID)
 $(deriveSafeCopy 1 'base ''MarkupID)
+-}
 $(derivePathInfo ''ReportElemID)
 $(derivePathInfo ''MarkupPairID)
 $(derivePathInfo ''AbbrevPairID)

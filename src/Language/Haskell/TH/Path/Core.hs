@@ -60,7 +60,7 @@ import qualified Data.Map as M (Map, insert, lookup)
 import Data.Set as Set (difference, fromList, Set)
 import Data.Maybe (catMaybes)
 import Data.Monoid
-import Data.SafeCopy (base, deriveSafeCopy)
+--import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Text as Text (Text, pack, unpack, unwords, words)
 import Data.UserId (UserId(..))
 import Debug.Trace (trace)
@@ -122,12 +122,14 @@ $(derivePathInfo ''Path_Either)
 $(derivePathInfo ''Path_Maybe)
 $(derivePathInfo ''Path_OMap)
 
+{-
 $(deriveSafeCopy 0 'base ''Path_Pair)
 $(deriveSafeCopy 0 'base ''Path_List)
 $(deriveSafeCopy 0 'base ''Path_Map)
 $(deriveSafeCopy 0 'base ''Path_Either)
 $(deriveSafeCopy 0 'base ''Path_Maybe)
 $(deriveSafeCopy 0 'base ''Path_OMap)
+-}
 
 idLens :: Lens' a a
 idLens = iso id id

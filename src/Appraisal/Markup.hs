@@ -2,12 +2,9 @@
              OverloadedStrings, ScopedTypeVariables, TemplateHaskell, TypeFamilies, TypeSynonymInstances #-}
 {-# OPTIONS -Wall -fno-warn-orphans -fno-warn-name-shadowing #-}
 module Appraisal.Markup
-    (
-    -- Don't export the constructors, we need to be careful how we
-    -- construct Markup values.
-      Markup
+    ( Markup(..)
     , foldMarkup
-    , markupText -- Retire in favor of foldMarkup?
+    , markupText
     , markupNull
 
     , rawMarkdown
@@ -32,14 +29,10 @@ module Appraisal.Markup
     , lens_CIString_Text
 
     , htmlify
-
-    -- For testing
-    , Markup(..)
     ) where
 
 import Appraisal.Utils.CIString
 import Appraisal.LaTeX ({- Ord, Data, Read -})
-import Appraisal.Unicode as U (Unicode'(Unicode'))
 import Appraisal.Utils.IsText (fromText)
 import Appraisal.Utils.Pandoc (pandocFromMarkdown)
 import Control.Monad.Identity (Identity, runIdentity)
@@ -48,7 +41,7 @@ import Control.Lens (Lens', iso)
 import Data.List as List (map, foldr)
 import Data.Maybe (fromMaybe)
 import Data.Monoid ((<>))
-import Data.SafeCopy (base, deriveSafeCopy)
+--import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Text as T (Text, isPrefixOf, drop, empty, uncons, null, singleton, map, foldr, pack)
 import qualified Data.Text as T (lines, strip)
 import Language.Haskell.TH.Path.Graph (HideType)
@@ -57,6 +50,7 @@ import Text.LaTeX.Base.Syntax (LaTeX(TeXEmpty, TeXRaw), protectText)
 import Text.LaTeX.Base.Writer (LaTeXT, execLaTeXT)
 import qualified Text.Pandoc as P
 
+{-
 $(deriveSafeCopy 1 'base ''P.Alignment)
 $(deriveSafeCopy 1 'base ''P.Block)
 $(deriveSafeCopy 1 'base ''P.Citation)
@@ -70,10 +64,11 @@ $(deriveSafeCopy 1 'base ''P.Meta)
 $(deriveSafeCopy 1 'base ''P.MetaValue)
 $(deriveSafeCopy 1 'base ''P.Pandoc)
 $(deriveSafeCopy 1 'base ''P.QuoteType)
+-}
 
 data Markup
-    = Markdown {markdownText :: Text}
-    | Html {htmlText :: Text}
+    = Markdown Text
+    | Html Text
     | LaTeX LaTeX
     | Pandoc P.Pandoc
     | Markup [Markup]
@@ -253,4 +248,6 @@ htmlify :: Markup -> Markup
 htmlify (Markdown s) = Html $ pack $ P.writeHtmlString P.def $ pandocFromMarkdown $ s
 htmlify x = x
 
+{-
 $(deriveSafeCopy 3 'base ''Markup)
+-}
