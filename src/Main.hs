@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, DeriveDataTypeable, FlexibleContexts, FlexibleInstances, FunctionalDependencies,
+{-# LANGUAGE DeriveDataTypeable, FlexibleContexts, FlexibleInstances, FunctionalDependencies,
              ImpredicativeTypes, MultiParamTypeClasses, ScopedTypeVariables, TemplateHaskell, TypeFamilies,
              UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
@@ -6,8 +6,8 @@ module Main
     ( main
     ) where
 
-import Appraisal.Report as Report (Report, ReportElem(ReportUndecided), reportUUID, reportBody, ReportElemID(ReportElemID))
-import Appraisal.ReportMap (ReportMap(ReportMap), ReportID(ReportID, unReportID))
+import Report (Report, ReportElem(ReportUndecided), reportUUID, reportBody, ReportElemID(ReportElemID),
+               ReportMap(ReportMap), ReportID(ReportID, unReportID))
 import Data.Data
 import Data.Generics.Aliases (extB)
 import Data.Int  (Int64, Int32)
@@ -15,9 +15,8 @@ import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 import qualified Data.Text as T (Text, empty)
 import qualified Data.UUID as UUID
-import ListLens (listReorder)
-import qualified Language.Haskell.TH.Path.Order as Order
-import SiteMap (WhichList(ElementList), ElemID(ElemID))
+import Order hiding (order)
+import ListLens (listReorder, WhichList(ElementList), ElemID(ElemID))
 
 -- Main creates a value of type ReportMap with one element, and then
 -- tries to reorder a list inside that element using listReorder.

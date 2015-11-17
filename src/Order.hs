@@ -1,33 +1,22 @@
-{-# LANGUAGE CPP, DeriveDataTypeable, FlexibleContexts, FlexibleInstances, FunctionalDependencies,
+{-# LANGUAGE DeriveDataTypeable, FlexibleContexts, FlexibleInstances, FunctionalDependencies,
              ImpredicativeTypes, MultiParamTypeClasses, ScopedTypeVariables, TemplateHaskell, TypeFamilies,
              UndecidableInstances #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Language.Haskell.TH.Path.Order
-    ( OrderKey(init, succ)
-    , OrderMap(Order, next, empty, elems, order, putItem, fromPairs, view, insert, permute)
-    , deleteItem
-    , appendItem
-    , insertItems
+module Order
+    ( OrderKey
+    , OrderMap(Order, fromPairs, order, permute)
     , toPairs
-    , toList
     , fromList
-    , asList
-    , find
-    , lens_omat
-    , view'
-    , deriveOrder
     ) where
 
 import Data.Data (Data)
-import Control.Lens (Traversal', _Just, lens)
 import Data.List as List (partition, elem, foldl, foldl', foldr, filter)
 import qualified Data.ListLike as LL
 import Data.Map as Map (Map, (!))
 import qualified Data.Map as Map
 import Data.SafeCopy (SafeCopy(..), contain, safeGet, safePut)
 import Data.Typeable (Typeable)
-import Language.Haskell.TH
 import Prelude hiding (init, succ)
 import qualified Prelude (succ)
 
@@ -158,20 +147,10 @@ instance (OrderKey k, SafeCopy k, SafeCopy a) => SafeCopy (Order k a) where
                            next_ <- safeGet
                            return $ Order {elems' = elems_, order' = order_, next' = next_}
 
--- | Remove the element at k if present.
-deleteItem :: OrderMap k => k -> Order k v -> Order k v
-deleteItem k m = maybe m snd (view k m)
-
 -- | Put a new element at the end of the order, allocating a new key
 -- for it.
 appendItem :: OrderMap k => v -> Order k v -> Order k v
 appendItem x = fst . insert x
-
-insertItems :: forall k v. Enum k => OrderMap k => Order k v -> [v] -> ([k], Order k v)
-insertItems om xs =
-    foldr f ([], om) (reverse xs)
-    where
-      f x (ks, om') = let (om'', k) = insert x om' in ((k : ks), om'')
 
 -- | Return the keys and values of the order.
 toPairs :: OrderMap k => Order k v -> [(k, v)]
@@ -184,59 +163,3 @@ toList = map snd . toPairs
 -- | Build an order from a list of values, allocating new all keys.
 fromList :: OrderMap k => [v] -> Order k v
 fromList xs = foldl' (flip appendItem) empty xs
-
--- | Perform an operation on a of an Order's (key, value) pairs,
--- reassembling the resulting pairs into a new Order.
-asList :: OrderMap k => ([(k, v)] -> [(k, v)]) -> Order k v -> Order k v
-asList f om = fromPairs . f . toPairs $ om
-
--- | Find the first value (along with the associated key) that
--- satisfies the predicate.
-find :: forall k v. OrderMap k => (v -> Bool) -> Order k v -> Maybe (k, v)
-find p m =
-    find' (order m)
-    where
-      find' :: [k] -> Maybe (k, v)
-      find' [] = Nothing
-      find' (k : more) =
-          case Map.lookup k (elems m) of
-            Nothing -> find' more
-            Just x | not (p x) -> find' more
-            Just x -> Just (k, x)
-
--- | Build a lens to focus on the k element of an Order.
-lens_omat :: forall k v. OrderMap k => k -> Traversal' (Order k v) v
-lens_omat k =
-    lens getter setter . _Just
-    where
-      getter :: Order k v -> Maybe v
-      getter s = Map.lookup k $ elems s
-      setter :: Order k v -> Maybe v -> Order k v
-      setter s a = maybe s (\ a' -> putItem k a' s) a
-
--- | Like view, but discards the remainder list
-view' :: OrderMap k => k -> Order k v -> v
-view' i m = maybe (error "Order.view'") fst (view i m)
-
--- | Given the name of a type such as AbbrevPair, generate declarations
--- @@
---     newtype AbbrevPairID = AbbrevPairID {unAbbrevPairID :: IntJS} deriving (Eq, Ord, Read, Show, Data, Typeable)
---     type AbbrevPairs = Order AbbrevPairID AbbrevPair
---     instance Enum AbbrevPairID where
---       toEnum = AbbrevPairID . toEnum
---       fromEnum = fromEnum . unAbbrevPairID
--- @@
-deriveOrder :: TypeQ -> Name -> Q [Dec]
-deriveOrder ityp t = do
-  let idname = mkName (nameBase t ++ "ID")
-      unname = mkName ("un" ++ nameBase t ++ "ID")
-      mpname = mkName (nameBase t ++ "s")
-  idtype <- newtypeD (cxt []) idname [] (recC idname [varStrictType unname (strictType notStrict ityp) ]) [''Eq, ''Ord, ''Read, ''Show, ''Data, ''Typeable]
-  insts <- [d| instance Enum $(conT idname) where
-                 toEnum = $(conE idname) . toEnum
-                 fromEnum = fromEnum . $(varE unname) |]
-  -- It would be nice to build the PathInfo instance for idname, but a
-  -- call to derivePathInfo would try to reify it, and its too soon
-  -- for that.
-  omtype <- tySynD mpname [] [t|Order $(conT idname) $(conT t)|]
-  return $ [idtype, omtype] ++ insts
