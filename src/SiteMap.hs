@@ -15,8 +15,6 @@ module SiteMap
     , Path_ReportMap(..)
     , Path_Report(..)
     , Path_ReportView(..)
-    , Path_Item(..)
-    , Path_ReportElem(..)
     ) where
 
 import Data.Data ( Data )
@@ -32,6 +30,7 @@ import Data.UserId ( UserId )
 import Data.UUID ( UUID )
 import Data.UUID.Orphans ()
 
+import Appraisal.CIString ( CIString(..) )
 import Appraisal.Image ( ImageCrop, Units, ImageSize(ImageSize), Dimension )
 import Appraisal.ImageFile ( ImageFile )
 import Appraisal.IntJS ( JSONText, ToIntJS(intJS) )
@@ -70,7 +69,6 @@ import Appraisal.ReportInstances
       ReportImageView(ReportImageView) )
 import Appraisal.ReportItem ( Item(Item), ItemFieldName )
 import Appraisal.ReportMap (ReportID(..), ReportMap(..))
-import Appraisal.Utils.CIString ( CIString(..) )
 
 import Language.Haskell.TH.Path.Core
     ( Path_Maybe(Path_Just),
@@ -165,7 +163,7 @@ data ElemID
     | MarkupID {unMarkupID :: Report.MarkupID}
     | MarkupPairID {unMarkupPairID :: Report.MarkupPairID}
     | AbbrevPairID {unAbbrevPairID :: Report.AbbrevPairID}
-    | ReportElemID {unReportElemID :: Report.ReportElemID}
+    | ElemID {unElemID :: Report.ReportElemID}
     deriving (Eq, Ord, Read, Show, Typeable, Data)
 
 instance Pretty ElemID where
@@ -174,7 +172,7 @@ instance Pretty ElemID where
     pPrint (SiteMap.MarkupID x) = pPrint x
     pPrint (SiteMap.MarkupPairID x) = pPrint x
     pPrint (SiteMap.AbbrevPairID x) = pPrint x
-    pPrint (SiteMap.ReportElemID x) = pPrint x
+    pPrint (SiteMap.ElemID x) = pPrint x
 
 instance ToIntJS ElemID where
     intJS x@(SiteMap.ReportImageID {}) = intJS . SiteMap.unReportImageID $ x
@@ -182,7 +180,7 @@ instance ToIntJS ElemID where
     intJS x@(SiteMap.MarkupID {}) = intJS . SiteMap.unMarkupID $ x
     intJS x@(SiteMap.MarkupPairID {}) = intJS . SiteMap.unMarkupPairID $ x
     intJS x@(SiteMap.AbbrevPairID {}) = intJS . SiteMap.unAbbrevPairID $ x
-    intJS x@(SiteMap.ReportElemID {}) = intJS . SiteMap.unReportElemID $ x
+    intJS x@(SiteMap.ElemID {}) = intJS . SiteMap.unElemID $ x
 
 data ReportTab = RT_TitlePage
                | RT_AppraiserTab

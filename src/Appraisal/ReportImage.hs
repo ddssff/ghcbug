@@ -16,13 +16,10 @@ import Appraisal.IntJS (deriveOrderJS)
 import Appraisal.Markup (Markup)
 import Data.Generics (Data, Typeable)
 import Data.Ratio ((%))
---import Data.SafeCopy (deriveSafeCopy, base)
 import Extra.URI ({- instances only -})
 import GHC.Float (fromRat)
-import Language.Haskell.TH.Path.Graph (SelfPath)
 import Network.URI (URI(..))
 import Text.PrettyPrint.HughesPJClass (Pretty(pPrint), text)
---import Web.Routes.TH (derivePathInfo)
 
 type MaybeImageFile = Maybe ImageFile
 
@@ -58,13 +55,5 @@ textWidthInInches = 1.0
 textHeightInInches :: Double
 textHeightInInches = 1.0
 
-{-
-$(deriveSafeCopy 4 'base ''ReportImage)
-$(deriveSafeCopy 1 'base ''ReportImageID)
-$(derivePathInfo ''ReportImageID)
--}
-
 instance Pretty ReportImageID where
     pPrint = text . show . unReportImageID
-
-instance SelfPath ReportImageID

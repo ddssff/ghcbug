@@ -19,7 +19,7 @@ listReorder :: (WhichList, [ElemID]) -> ReportID -> ReportMap -> (ReportMap, [St
 listReorder which rid rmp =
   case which of
     (ElementList, ps) ->
-        listReorder'' rmp (map SiteMap.unReportElemID ps) (toLens (Path_ReportMap_unReportMap (Path_Look rid (Path_Report_View (Path_ReportView__reportBody Path_OMap)))) :: Traversal' ReportMap ReportElems)
+        listReorder'' rmp (map SiteMap.unElemID ps) (toLens (Path_ReportMap_unReportMap (Path_Look rid (Path_Report_View (Path_ReportView__reportBody Path_OMap)))) :: Traversal' ReportMap ReportElems)
     (ItemImage _, _) -> listReorder'' undefined undefined (undefined :: Traversal' ReportMap ReportImages)
 
 listReorder'' :: forall k v. (Pretty k, Enum k, OrderKey k) =>

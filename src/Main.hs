@@ -2,36 +2,66 @@
              ImpredicativeTypes, MultiParamTypeClasses, ScopedTypeVariables, TemplateHaskell, TypeFamilies,
              UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
-module Main where
+module Main
+    ( main
+    ) where
 
-import Data.Maybe (fromJust)
-import Data.UUID (fromString)
-import qualified Data.Map as Map
-
-import Appraisal.Report as Report (Report, ReportElem(ReportUndecided), reportUUID, reportBody, ReportElemID(ReportElemID), unReportElemID)
+import Appraisal.Report as Report (Report, ReportElem(ReportUndecided), reportUUID, reportBody, ReportElemID(ReportElemID))
 import Appraisal.ReportMap (ReportMap(ReportMap), ReportID(ReportID, unReportID))
-import SiteMap (ListOp(ListOpReorder), WhichList(ElementList), ElemID(ReportElemID, unReportElemID))
+import Data.Data
+import Data.Generics.Aliases (extB)
+import Data.Int  (Int64, Int32)
+import qualified Data.Map as Map
+import Data.Maybe (fromJust)
+import qualified Data.Text as T (Text, empty)
+import qualified Data.UUID as UUID
 import ListLens (listReorder)
-import Appraisal.Utils.Builders as Builders (empty)
 import qualified Language.Haskell.TH.Path.Order as Order
+import SiteMap (WhichList(ElementList), ElemID(ElemID))
 
-rid :: ReportID
-rid = ReportID {unReportID = fromJust $ fromString "604b4920-7a6d-4ff2-9138-b9c0ba69290b"}
-
-op :: ListOp
-op = ListOpReorder rid  ElementList
-
-bdy :: Order.Order ReportElemID ReportElem
-bdy = Order.fromList [ Report.ReportUndecided ]
-
-report :: Report
-report =
-    Builders.empty { reportUUID = unReportID rid
-                   , reportBody = bdy
-                   }
-
-reportMap' :: ReportMap
-reportMap' = ReportMap $ Map.fromList [(rid, report)]
-
+-- Main creates a value of type ReportMap with one element, and then
+-- tries to reorder a list inside that element using listReorder.
 main :: IO ()
-main = print $ listReorder   (ElementList, [SiteMap.ReportElemID {SiteMap.unReportElemID = Report.ReportElemID {Report.unReportElemID = 1}}]) rid reportMap'
+main = print $ listReorder   (ElementList, order) rid reportMap'
+    where
+      order :: [ElemID]
+      order = [ElemID (ReportElemID 1)]
+
+      rid :: ReportID
+      rid = ReportID (fromJust $ UUID.fromString "604b4920-7a6d-4ff2-9138-b9c0ba69290b")
+
+      report :: Report
+      report =
+          empty { reportUUID = unReportID rid
+                , reportBody = Order.fromList [ Report.ReportUndecided ] }
+
+      reportMap' :: ReportMap
+      reportMap' = ReportMap $ Map.fromList [(rid, report)]
+
+-- | Construct the empty value for a datatype. For algebraic datatypes, the
+-- leftmost constructor is chosen.
+empty :: forall a. Data a => a
+empty = general
+      `extB` char
+      `extB` int
+      `extB` int64
+      `extB` int32
+      `extB` integer
+      `extB` float
+      `extB` double
+      `extB` text
+      `extB` uuid where
+  -- Generic case
+  general :: Data a => a
+  general = fromConstrB empty (indexConstr (dataTypeOf general) 1)
+
+  -- Base cases
+  char    = '\NUL'
+  int     = 0      :: Int
+  int64   = 0      :: Int64
+  int32   = 0      :: Int32
+  integer = 0      :: Integer
+  float   = 0.0    :: Float
+  double  = 0.0    :: Double
+  text    = T.empty :: T.Text
+  uuid    = UUID.nil

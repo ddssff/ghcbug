@@ -5,11 +5,7 @@
 
 module Language.Haskell.TH.Path.Order
     ( OrderKey(init, succ)
-#if __GHC_VERSION__ >= 708
     , OrderMap(Order, next, empty, elems, order, putItem, fromPairs, view, insert, permute)
-#else
-    , OrderMap(next, empty, elems, order, putItem, fromPairs, view, insert, permute), Order
-#endif
     , deleteItem
     , appendItem
     , insertItems

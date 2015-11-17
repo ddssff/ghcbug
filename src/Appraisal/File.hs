@@ -17,7 +17,6 @@ module Appraisal.File
     , FileSource(..)
     ) where
 
-import Control.Applicative ((<$>))
 import Control.Monad.Reader (ReaderT, ask)
 import Data.Generics (Data(..), Typeable)
 import Data.Monoid ((<>))

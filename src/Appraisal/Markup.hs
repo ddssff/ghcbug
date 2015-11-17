@@ -1,5 +1,5 @@
 {-# LANGUAGE CPP, DeriveDataTypeable, FlexibleInstances, GeneralizedNewtypeDeriving, MultiParamTypeClasses,
-             OverloadedStrings, ScopedTypeVariables, TemplateHaskell, TypeFamilies, TypeSynonymInstances #-}
+             OverloadedStrings, ScopedTypeVariables, StandaloneDeriving, TemplateHaskell, TypeFamilies, TypeSynonymInstances #-}
 {-# OPTIONS -Wall -fno-warn-orphans -fno-warn-name-shadowing #-}
 module Appraisal.Markup
     ( Markup(..)
@@ -26,29 +26,24 @@ module Appraisal.Markup
     , strip
     , strip'
 
-    , lens_CIString_Text
-
     , htmlify
     ) where
 
-import Appraisal.Utils.CIString
-import Appraisal.LaTeX ({- Ord, Data, Read -})
-import Appraisal.Utils.IsText (fromText)
-import Appraisal.Utils.Pandoc (pandocFromMarkdown)
 import Control.Monad.Identity (Identity, runIdentity)
 import Data.Generics (Data, Typeable)
-import Control.Lens (Lens', iso)
 import Data.List as List (map, foldr)
 import Data.Maybe (fromMaybe)
 import Data.Monoid ((<>))
 --import Data.SafeCopy (base, deriveSafeCopy)
-import Data.Text as T (Text, isPrefixOf, drop, empty, uncons, null, singleton, map, foldr, pack)
-import qualified Data.Text as T (lines, strip)
-import Language.Haskell.TH.Path.Graph (HideType)
+import Data.Text as T (Text, singleton, pack)
 import Prelude hiding (lines)
-import Text.LaTeX.Base.Syntax (LaTeX(TeXEmpty, TeXRaw), protectText)
+import Text.LaTeX.Base.Syntax as LaTeX (LaTeX(..), Measure(..), TeXArg(..), MathType(..), protectText)
 import Text.LaTeX.Base.Writer (LaTeXT, execLaTeXT)
 import qualified Text.Pandoc as P
+
+import Data.Set as Set (difference, fromList)
+import qualified Data.Text as T
+import qualified Text.Pandoc as Pandoc
 
 {-
 $(deriveSafeCopy 1 'base ''P.Alignment)
@@ -66,6 +61,23 @@ $(deriveSafeCopy 1 'base ''P.Pandoc)
 $(deriveSafeCopy 1 'base ''P.QuoteType)
 -}
 
+deriving instance Data LaTeX
+deriving instance Data MathType
+deriving instance Data Measure
+deriving instance Data TeXArg
+deriving instance Ord LaTeX
+deriving instance Ord MathType
+deriving instance Ord Measure
+deriving instance Ord TeXArg
+deriving instance Read LaTeX
+deriving instance Read MathType
+deriving instance Read Measure
+deriving instance Read TeXArg
+-- deriving instance Typeable LaTeX
+deriving instance Typeable MathType
+deriving instance Typeable Measure
+deriving instance Typeable TeXArg
+
 data Markup
     = Markdown Text
     | Html Text
@@ -73,12 +85,6 @@ data Markup
     | Pandoc P.Pandoc
     | Markup [Markup]
     deriving (Eq, Ord, Data, Typeable, Read)
-
--- Hiding these types will hide three fields of Markup we don't want
--- to appear in the UI.
-instance HideType LaTeX
-instance HideType [Markup]
-instance HideType P.Pandoc
 
 strip :: Markup -> Maybe Markup
 strip = stripStart . stripEnd . Just
@@ -240,13 +246,26 @@ mapChars f (Markdown t) = Markdown (T.map f t)
 mapChars f (Html t) = Html (T.map f t)
 mapChars _ x = x
 
-lens_CIString_Text :: Lens' CIString Text
-lens_CIString_Text = iso (pack . unCIString) fromText
-
 -- | If a Markup value has constructor Markdown, convert it to Html.
 htmlify :: Markup -> Markup
 htmlify (Markdown s) = Html $ pack $ P.writeHtmlString P.def $ pandocFromMarkdown $ s
 htmlify x = x
+
+pandocFromMarkdown :: T.Text -> Pandoc.Pandoc
+pandocFromMarkdown t = either (error $ "Invalid markdown? " ++ T.unpack t) id . Pandoc.readMarkdown markdownOpts . T.unpack {- . fixMarkdown -} {- . T.strip -} $ t
+    where
+      markdownOpts =
+          Pandoc.def { -- Setting this to True makes the following transformations, at least:
+                --   Turns the space after things like Mr. to unicode 0xa0 (nbsp)
+                --   Turns ... into …
+                --   Turns ' into ’ (unicode 8217.)  Sometimes you will get a pair of these.  XeLaTeX doesn't like them.
+                --   Turns " into `` or '' depending on position
+                -- This is useful as long as you understand that it is happening.
+                -- For LaTeX we need to turn some quotes back into regular ascii.
+                Pandoc.readerSmart = True,
+                Pandoc.readerParseRaw = True,
+                Pandoc.readerExtensions = Set.difference (Pandoc.readerExtensions Pandoc.def)
+                                                  (Set.fromList [Pandoc.Ext_backtick_code_blocks, Pandoc.Ext_tex_math_dollars]) }
 
 {-
 $(deriveSafeCopy 3 'base ''Markup)

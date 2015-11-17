@@ -1,9 +1,10 @@
 {-# LANGUAGE CPP, DeriveDataTypeable, FlexibleInstances, TemplateHaskell, TypeSynonymInstances #-}
-module Appraisal.Utils.CIString
+module Appraisal.CIString
     ( CIString(unCIString, CIString)
+    , lens_CIString_Text
     ) where
 
-import Appraisal.Utils.IsText (IsText(fromText))
+import Control.Lens (Lens', iso)
 import Data.Char (toLower)
 import Data.Function (on)
 import Data.Generics (Data, Typeable)
@@ -27,9 +28,18 @@ instance Monoid CIString where
 instance IsString CIString where
     fromString = CIString . T.unpack . T.strip . T.pack
 
+-- | Like Data.String.IsString
+class IsText a where
+    fromText :: T.Text -> a
+
+instance IsText T.Text where
+    fromText = id
+
 instance IsText CIString where
     fromText = fromString . T.unpack . T.strip
 
+lens_CIString_Text :: Lens' CIString T.Text
+lens_CIString_Text = iso (T.pack . unCIString) fromText
 {-
 $(deriveSafeCopy 1 'base ''CIString)
 -}

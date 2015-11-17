@@ -29,14 +29,13 @@ module Appraisal.Report
       reportBrandingLens
     ) where
 
+import Appraisal.CIString (CIString)
 import Appraisal.File (File(File, fileSource, fileChksum, fileMessages), FileSource(TheURI))
 import Appraisal.ImageFile (ImageFile(ImageFile, imageFile, imageFileType, imageFileWidth, imageFileHeight, imageFileMaxVal), ImageType(..))
 import Appraisal.IntJS (deriveOrderJS)
 import Appraisal.Markup as M (Markup)
 import Appraisal.Permissions (Permissions)
 import Appraisal.ReportItem (Item(..))
-import Appraisal.Utils.CIString (CIString)
-import Appraisal.Utils.Debug (trace'')
 import Data.UUID.Types (UUID)
 import Data.Generics (Data, Typeable)
 import Data.Int (Int64)
@@ -44,12 +43,10 @@ import Control.Lens (Lens', lens)
 import Data.Text as T (Text, pack, unpack, strip)
 import Debug.Trace (trace)
 import Language.Haskell.TH.Path.Core (lens_mrs, readShowLens)
-import Language.Haskell.TH.Path.Graph (SelfPath)
 import Language.Haskell.TH.Path.View (View(ViewType, viewLens))
 import Data.UUID.Orphans ()
 import Prelude hiding (read)
 import Text.PrettyPrint.HughesPJClass (Pretty(pPrint), text)
-import Web.Routes.TH (derivePathInfo)
 
 data ReportFieldLabel
     = ReportName
@@ -82,10 +79,6 @@ data Author
     deriving (Read, Show, Eq, Ord, Typeable, Data)
 
 $(deriveOrderJS ''Author)
-{-
-$(deriveSafeCopy 1 'base ''AuthorID)
--}
-$(derivePathInfo ''AuthorID)
 
 data AuthorFieldLabel
     = AuthorName
@@ -279,29 +272,7 @@ reportBrandingLens = lens getter setter
                                     , imageFileType = JPEG, imageFileWidth = 1280, imageFileHeight = 113, imageFileMaxVal = 255 })
               _ -> case reads (unpack x) of
                      [(b,_)] -> b
-                     _ -> trace'' ("reportBrandingLens dropping value " ++ unpack x) NoLogo
-
-{-
-$(deriveSafeCopy 1 'base ''Author)
-$(deriveSafeCopy 1 'base ''ReportValueTypeInfo)
-$(deriveSafeCopy 1 'base ''ReportIntendedUse_1)
-$(deriveSafeCopy 3 'base ''ReportIntendedUse)
-$(deriveSafeCopy 1 'base ''ReportValueApproachInfo)
-$(deriveSafeCopy 1 'base ''ReportElem)
-$(deriveSafeCopy 17 'base ''Report)
-$(deriveSafeCopy 1 'base ''ReportStatus)
-$(deriveSafeCopy 0 'base ''ReportFlags)
-$(deriveSafeCopy 1 'base ''Branding)
-
-$(deriveSafeCopy 1 'base ''ReportElemID)
-$(deriveSafeCopy 1 'base ''MarkupPairID)
-$(deriveSafeCopy 1 'base ''AbbrevPairID)
-$(deriveSafeCopy 1 'base ''MarkupID)
--}
-$(derivePathInfo ''ReportElemID)
-$(derivePathInfo ''MarkupPairID)
-$(derivePathInfo ''AbbrevPairID)
-$(derivePathInfo ''MarkupID)
+                     _ -> NoLogo
 
 instance Pretty MarkupID where
     pPrint = text . show . unMarkupID
@@ -317,9 +288,3 @@ instance Pretty AbbrevPairID where
 
 instance Pretty ReportElemID where
     pPrint = text . show . unReportElemID
-
-instance SelfPath AbbrevPairID
-instance SelfPath AuthorID
-instance SelfPath MarkupID
-instance SelfPath MarkupPairID
-instance SelfPath ReportElemID

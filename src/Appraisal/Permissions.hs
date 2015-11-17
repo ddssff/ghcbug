@@ -8,13 +8,9 @@ module Appraisal.Permissions
     ) where
 
 import Data.Generics (Data, Typeable)
---import Data.SafeCopy (base, deriveSafeCopy)
 import Data.UserId (UserId(..))
 
 newtype UserId_0 = UserId_0 { _unUserId_0 :: Integer } deriving (Enum, Eq, Integral, Num, Ord, Read, Real, Show, Data, Typeable)
-{-
-$(deriveSafeCopy 0 'base ''UserId_0)
--}
 
 type UserIds = [UserId]
 
@@ -26,10 +22,6 @@ data Permissions
                   , writers :: UserIds   -- Sets would be preferable, but I think maybe they are causing problems
                   , readers :: UserIds }
     deriving (Read, Show, Eq, Ord, Typeable, Data)
-
-{-
-$(deriveSafeCopy 2 'base ''Permissions)
--}
 
 data PermissionStatus
     = NotLoggedIn

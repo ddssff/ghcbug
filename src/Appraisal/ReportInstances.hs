@@ -6,33 +6,29 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-module Appraisal.ReportInstances where
+module Appraisal.ReportInstances
+    ( ReportImageView(ReportImageView)
+    , SaneSize
+    , SaneSizeImageSize
+    , ReadOnlyFilePath
+    , ReportView(ReportView)
+    ) where
 
-import Appraisal.File (URI, File)
+import Appraisal.CIString (CIString, lens_CIString_Text)
+import Appraisal.File (URI)
 import Appraisal.Image (Dimension, ImageCrop, ImageSize, lens_saneSize, Units)
 import Appraisal.ImageFile (ImageFile)
-import Appraisal.IntJS (IntJS, gjsonLens, JSONText)
-import Appraisal.Markup as M (Markup, lens_CIString_Text)
+import Appraisal.IntJS (gjsonLens, JSONText)
+import Appraisal.Markup as M (Markup)
 import Appraisal.Permissions (Permissions, UserIds)
 import Appraisal.Report (Authors, AbbrevPairs, EpochMilli, MarkupPairs, Markups, ReportElems, ReportFlags, ReportValueTypeInfo, ReportValueApproachInfo, Branding, Report(Report), reportBrandingLens, MaybeReportIntendedUse, ReportStatus)
 import Appraisal.ReportImage (ReportImage(Pic), MaybeImageFile)
-import Appraisal.ReportItem (ItemFieldName)
-import Appraisal.ReportMap (ReportID, ReportMap)
-import Appraisal.Utils.CIString (CIString)
 import Data.UUID.Types as UUID (UUID)
 import Control.Lens
 import Data.Generics (Data, Typeable)
-import Data.Int (Int64)
 import Data.Text as T (Text)
-import Data.UserId (UserId(..))
-import Data.Word (Word32)
-import Language.Haskell.TH
 import Language.Haskell.TH.Path.Core (lens_mrs, lens_UserIds_Text, readOnlyLens, readShowLens)
-import Language.Haskell.TH.Path.Graph (SinkType)
 import Language.Haskell.TH.Path.View (View(ViewType, viewLens))
-import Text.LaTeX (LaTeX)
-import Text.Pandoc (Pandoc, Meta)
-import Web.Routes.TH (derivePathInfo)
 
 newtype ReadOnly a = ReadOnly {unReadOnly :: a} deriving (Read, Show, Eq, Ord, Typeable, Data)
 
@@ -153,22 +149,6 @@ instance View Report where
                      a31 a32 a33 a34 a35 a36 a37 a38 a39 a40
                      a41 a42 a43 a44
 
-instance SinkType File
-instance SinkType ImageCrop
-instance SinkType ImageFile
-instance SinkType Int64
-instance SinkType Integer
-instance SinkType IntJS
-instance SinkType Int
-instance SinkType JSONText
-instance SinkType LaTeX
-instance SinkType Meta
-instance SinkType Pandoc
-instance SinkType URI
-instance SinkType UserId
-instance SinkType UUID
-instance SinkType Word32
-
 instance View Bool where type ViewType Bool = String; viewLens = readShowLens
 instance View Branding where type ViewType Branding = Text; viewLens = reportBrandingLens
 instance View Dimension where type ViewType Dimension = JSONText; viewLens = gjsonLens
@@ -180,10 +160,3 @@ instance View Text where type ViewType Text = JSONText; viewLens = gjsonLens
 instance View Units where type ViewType Units = JSONText; viewLens = gjsonLens
 instance View UserIds where type ViewType UserIds = Text; viewLens = lens_UserIds_Text
 instance View CIString where type ViewType CIString = Text; viewLens = lens_CIString_Text
-
-startTypes :: Q [Type]
-startTypes = (: []) <$> [t|ReportMap|]
-
-$(derivePathInfo ''Maybe)
-$(derivePathInfo ''ItemFieldName)
-$(derivePathInfo ''ReportID)
