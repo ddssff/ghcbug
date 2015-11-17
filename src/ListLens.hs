@@ -15,7 +15,6 @@ import Order (Order, order, permute, OrderKey)
 import Data.Data ( Data )
 import Data.Typeable ( Typeable )
 import Report (ReportElemID(..), IntJS, ToIntJS(intJS))
-import Data.Aeson (ToJSON(toJSON), FromJSON(parseJSON))
 
 data ReportImage
     = Pic Bool
@@ -31,13 +30,6 @@ instance Enum ReportImageID where
       fromEnum = (fromEnum . unReportImageID)
 instance ToIntJS ReportImageID where
       intJS = unReportImageID
-instance ToJSON ReportImageID where
-      toJSON
-        = (toJSON . unReportImageID)
-instance FromJSON ReportImageID where
-      parseJSON
-        = ((fmap ReportImageID)
-           . parseJSON)
 
 data ElemID
     = ElemImageID {unElemImageID :: ReportImageID}
@@ -63,7 +55,9 @@ listReorder which rid rmp =
   case which of
     (ElementList, ps) ->
         listReorder'' rmp (map unElemID ps) (lns)
-    (ItemImage _, _) -> listReorder'' undefined undefined (undefined :: Traversal' ReportMap ReportImages)
+    (ItemImage _, _) ->
+        -- Removing or changing this makes the bug vanish
+        listReorder'' undefined undefined (undefined :: Traversal' ReportMap ReportImages)
     where
       lns :: Traversal' ReportMap ReportElems
       lns = (iso (\(ReportMap x) -> x) ReportMap) . mat rid . lens_Report__reportBody . iso id id
