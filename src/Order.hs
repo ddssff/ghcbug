@@ -15,7 +15,6 @@ import Data.List as List (partition, elem, foldl, foldl', foldr, filter)
 import qualified Data.ListLike as LL
 import Data.Map as Map (Map, (!))
 import qualified Data.Map as Map
-import Data.SafeCopy (SafeCopy(..), contain, safeGet, safePut)
 import Data.Typeable (Typeable)
 import Prelude hiding (init, succ)
 import qualified Prelude (succ)
@@ -137,15 +136,6 @@ instance (OrderKey k, Monoid (Order k a)) => LL.FoldableLL (Order k a) a where
 instance (Ord a, Enum a) => OrderKey a where
     init = toEnum 1            -- Yeah, that's right, 1.  F**k zeroth elements.
     succ = Prelude.succ
-
-instance (OrderKey k, SafeCopy k, SafeCopy a) => SafeCopy (Order k a) where
-    putCopy m = contain $ do safePut (elems' m)
-                             safePut (order' m)
-                             safePut (next' m)
-    getCopy = contain $ do elems_ <- safeGet
-                           order_ <- safeGet
-                           next_ <- safeGet
-                           return $ Order {elems' = elems_, order' = order_, next' = next_}
 
 -- | Put a new element at the end of the order, allocating a new key
 -- for it.

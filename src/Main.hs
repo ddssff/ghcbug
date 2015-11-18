@@ -14,7 +14,6 @@ import Data.Int  (Int64, Int32)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 import qualified Data.Text as T (Text, empty)
-import qualified Data.UUID as UUID
 import Order hiding (order)
 import ListLens (listReorder, WhichList(ElementList), ElemID(ElemID))
 
@@ -27,7 +26,7 @@ main = print $ listReorder   (ElementList, order) rid reportMap'
       order = [ElemID (ReportElemID 1)]
 
       rid :: ReportID
-      rid = ReportID (fromJust $ UUID.fromString "604b4920-7a6d-4ff2-9138-b9c0ba69290b")
+      rid = ReportID "604b4920-7a6d-4ff2-9138-b9c0ba69290b"
 
       report :: Report
       report =
@@ -63,4 +62,4 @@ empty = general
   float   = 0.0    :: Float
   double  = 0.0    :: Double
   text    = T.empty :: T.Text
-  uuid    = UUID.nil
+  uuid    = ""

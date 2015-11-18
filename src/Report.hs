@@ -17,8 +17,6 @@ module Report
 import Data.Data (Data, Typeable)
 import Data.Int (Int32)
 import qualified Data.Map as M (Map)
-import Data.UUID.Types (UUID)
-import Data.UUID.Orphans ()
 import Prelude hiding (read)
 import Order (Order)
 
@@ -45,9 +43,9 @@ instance FromJSON ReportElemID where
 
 data Report
     = Report { reportBody :: ReportElems
-             , reportUUID :: UUID
+             , reportUUID :: String
              }
     deriving (Show, Eq, Ord, Typeable, Data)
 
-newtype ReportID = ReportID { unReportID :: UUID } deriving (Eq, Ord, Read, Show, Typeable, Data)
+newtype ReportID = ReportID { unReportID :: String } deriving (Eq, Ord, Read, Show, Typeable, Data)
 newtype ReportMap = ReportMap { unReportMap :: M.Map ReportID Report } deriving (Eq, Ord, Show, Typeable, Data)
