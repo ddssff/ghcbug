@@ -1,19 +1,14 @@
 {-# LANGUAGE FlexibleInstances, UndecidableInstances #-}
 module Order where
 
-import Prelude hiding (init, succ)
-
 class Eq k => OrderKey k where
-    init :: k
+    unused :: k
 
 class OrderKey k => OrderMap k where
-    insert :: k
-    insert = init
-
     permute :: k -> k -> ()
     permute k' k = k' == k `seq` ()
 
 instance OrderKey k => OrderMap k
 
-instance (Eq a, Enum a) => OrderKey a where
-    init = toEnum 1
+instance (Eq a) => OrderKey a where
+    unused = error "unused"

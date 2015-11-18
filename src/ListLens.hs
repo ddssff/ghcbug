@@ -5,7 +5,7 @@ import Order
 
 -- this indirection is needed
 listReorder :: ReportElemID
-listReorder = listReorder'' (ReportElemID 1) insert
+listReorder = listReorder'' (ReportElemID 1) (ReportElemID 1)
 
 -- Type signature is needed
 listReorder'' :: (Enum k, OrderKey k) =>
