@@ -5,8 +5,8 @@ class Eq k => OrderKey k where
     unused :: k
 
 class OrderKey k => OrderMap k where
-    permute :: k -> k -> ()
-    permute k' k = k' == k `seq` ()
+    permute :: k -> k -> Bool
+    permute = (==)
 
 instance OrderKey k => OrderMap k
 
