@@ -6,7 +6,6 @@ module Report
 import Report0
 
 instance Eq ReportElemID where (==) _ _ = error "unused"
-instance Ord ReportElemID where compare _ _ = error "unused"
 instance Enum ReportElemID where
       toEnum = error "unused"
       fromEnum = error "unused"

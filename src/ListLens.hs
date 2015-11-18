@@ -3,18 +3,16 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module ListLens where
 
-import Order (Order, permute, OrderKey)
 import Report (ReportElemID)
-
-type ReportElems = Order ReportElemID
+import Order
 
 -- this indirection is needed
-listReorder :: ReportElemID ->  ReportElems -> ReportElems
+listReorder :: ReportElemID ->  ReportElemID -> ReportElemID
 listReorder = listReorder''
 
 -- Type signature is needed
 listReorder'' :: forall k. (Enum k, OrderKey k) =>
-                 k -> Order k -> ReportElems
+                 k -> k -> ReportElemID
 listReorder'' ps order = reorder
     where
       -- This indirection is needed

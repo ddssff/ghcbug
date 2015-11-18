@@ -6,10 +6,9 @@ module Main
     ( main
     ) where
 
-import Report ( ReportElemID(ReportElemID))
-import ListLens ( ReportElems )
+import Report
+import ListLens
 import Order
-import ListLens (listReorder)
 
 -- Main creates a value of type ReportMap with one element, and then
 -- tries to reorder a list inside that element using listReorder.
@@ -19,8 +18,8 @@ main = (`seq` return ()) $ listReorder order reportMap'
       order :: ReportElemID
       order = ReportElemID 1
 
-      report :: ReportElems
+      report :: ReportElemID
       report = Order.insert
 
-      reportMap' :: ReportElems
+      reportMap' :: ReportElemID
       reportMap' =  report
