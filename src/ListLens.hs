@@ -1,6 +1,3 @@
-{-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 module ListLens  where
 
 import Report
@@ -11,7 +8,7 @@ listReorder :: ReportElemID
 listReorder = listReorder'' (ReportElemID 1) insert
 
 -- Type signature is needed
-listReorder'' :: forall k. (Enum k, OrderKey k) =>
+listReorder'' :: (Enum k, OrderKey k) =>
                  k -> k -> ReportElemID
 listReorder'' ps order = reorder
     where
