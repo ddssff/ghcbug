@@ -8,10 +8,10 @@ executable bug
   Main-Is: Main.hs
   Hs-Source-Dirs: src
   GHC-Options: -O2 -Wall
-  Build-depends: base, lens, syb, text, ListLike, containers
+  Build-depends: base, microlens, syb, text, ListLike, containers
 
 executable nobug
   Main-Is: Main.hs
   Hs-Source-Dirs: src
   GHC-Options: -O0 -Wall
-  Build-depends: base, lens, syb, text, ListLike, containers
+  Build-depends: base, microlens, syb, text, ListLike, containers

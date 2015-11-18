@@ -9,7 +9,7 @@ module ListLens
     ) where
 
 import Report (Report(Report), ReportElems, ReportID, ReportMap(ReportMap))
-import Control.Lens
+import Lens.Micro (Traversal', lens, (^?), (.~), _Just)
 import qualified Data.Map as M (Map, insert, lookup)
 import Order (Order, order, permute, OrderKey)
 import Data.Data ( Data )
@@ -54,15 +54,14 @@ listReorder :: (WhichList, [ElemID]) -> ReportID -> ReportMap -> (ReportMap, [St
 listReorder which rid rmp =
   case which of
     (ElementList, ps) ->
-        listReorder'' rmp (map unElemID ps) (lns)
+        listReorder'' rmp (map unElemID ps) lns
     (ItemImage _, _) ->
         -- Removing or changing this makes the bug vanish
         listReorder'' undefined undefined (undefined :: Traversal' ReportMap ReportImages)
     where
       lns :: Traversal' ReportMap ReportElems
-      lns = (iso (\(ReportMap x) -> x) ReportMap) . mat rid . lens_Report__reportBody . iso id id
-      lens_Report__reportBody f (Report x27 x28) =
-                    fmap (\y1 -> Report y1  x28) (f x27)
+      lns = (lens (\(ReportMap x) -> x) (\ _ x -> ReportMap x)) . mat rid . lens_Report__reportBody . lens id (\_ x -> x)
+      lens_Report__reportBody f (Report x27 x28) = fmap (\y1 -> Report y1  x28) (f x27)
 
 listReorder'' :: forall k v. (Show k, Enum k, OrderKey k) =>
                  ReportMap -> [k] -> Traversal' ReportMap (Order k v) -> (ReportMap, [String])

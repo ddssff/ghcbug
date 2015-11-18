@@ -12,7 +12,6 @@ import Data.Data
 import Data.Generics.Aliases (extB)
 import Data.Int  (Int64, Int32)
 import qualified Data.Map as Map
-import Data.Maybe (fromJust)
 import qualified Data.Text as T (Text, empty)
 import Order hiding (order)
 import ListLens (listReorder, WhichList(ElementList), ElemID(ElemID))
