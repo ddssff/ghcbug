@@ -8,8 +8,7 @@ module Main
 
 import Report ( ReportElemID(ReportElemID))
 import ListLens ( ReportElems )
-import qualified Data.Map as Map
-import Order hiding (order)
+import Order
 import ListLens (listReorder)
 
 -- Main creates a value of type ReportMap with one element, and then
@@ -17,11 +16,11 @@ import ListLens (listReorder)
 main :: IO ()
 main = (`seq` return ()) $ listReorder order reportMap'
     where
-      order :: [ReportElemID]
-      order = [ReportElemID 1]
+      order :: ReportElemID
+      order = ReportElemID 1
 
       report :: ReportElems
-      report = fst (Order.insert () Order.empty)
+      report = Order.insert ()
 
       reportMap' :: ReportElems
       reportMap' =  report
