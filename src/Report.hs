@@ -1,4 +1,4 @@
--- {-# OPTIONS_GHC -O0 -Wall -fno-warn-orphans #-}
+{-# OPTIONS_GHC -O0 -Wall -fno-warn-orphans #-}
 module Report
     ( module Report0
     ) where

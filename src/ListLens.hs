@@ -1,14 +1,14 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-module ListLens where
+module ListLens  where
 
 import Report
 import Order
 
 -- this indirection is needed
-listReorder :: ReportElemID ->  ReportElemID -> ReportElemID
-listReorder = listReorder''
+listReorder :: ReportElemID
+listReorder = listReorder'' (ReportElemID 1) insert
 
 -- Type signature is needed
 listReorder'' :: forall k. (Enum k, OrderKey k) =>
