@@ -11,8 +11,7 @@ module Order
     ) where
 
 import Data.Data (Data)
-import Data.List as List (partition, elem, foldl, foldl', foldr, filter)
-import qualified Data.ListLike as LL
+import Data.List as List (partition, elem, foldl', filter)
 import Data.Map as Map (Map, (!))
 import qualified Data.Map as Map
 import Data.Typeable (Typeable)
@@ -119,19 +118,6 @@ instance (OrderMap k, Eq a, Ord a) => Ord (Order k a) where
 instance (OrderMap k, Read a) => Read (Order k a) where
     -- readsPrec :: Int -> String -> [(OrderMap k a, String)]
     readsPrec _ s = let l = (read s :: [a]) in [(fromList l, "")]
-
-instance (OrderKey k, Monoid (Order k a)) => LL.ListLike (Order k a) a where
-    singleton x = fst $ insert x empty
-    head m = case order m of
-               (hd : _) -> elems m ! hd
-               _ -> error "OrderMap.head"
-    tail m = case order m of
-               (hd : tl) -> m {order' = tl, elems' = Map.delete hd (elems m), next' = next m}
-               _ -> error "OrderMap.tail"
-
-instance (OrderKey k, Monoid (Order k a)) => LL.FoldableLL (Order k a) a where
-    foldl f r0 xs = List.foldl f r0 (toList xs)
-    foldr f r0 xs = List.foldr f r0 (toList xs)
 
 instance (Ord a, Enum a) => OrderKey a where
     init = toEnum 1            -- Yeah, that's right, 1.  F**k zeroth elements.
