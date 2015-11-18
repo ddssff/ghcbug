@@ -1,84 +1,41 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-module ListLens
-    ( WhichList(..)
-    , ElemID(..)
-    , ReportImages
-    , listReorder
-    ) where
+module ListLens where
 
-import Report (Report(Report), ReportElems, ReportID, ReportMap(ReportMap))
 import Lens.Micro (Traversal', lens, (^?), (.~), _Just)
 import qualified Data.Map as M (Map, insert, lookup)
 import Order (Order, order, permute, OrderKey)
-import Data.Data ( Data )
-import Data.Typeable ( Typeable )
-import Report (ReportElemID(..), IntJS, ToIntJS(intJS))
+import Report (ReportElemID(..))
+import Data.Int (Int32)
 
-data ReportImage
-    = Pic Bool
-    deriving (Eq, Ord, Show, Data, Typeable)
 
-newtype ReportImageID
-      = ReportImageID {unReportImageID :: IntJS}
-      deriving (Eq, Ord, Read, Show, Data, Typeable)
-type ReportImages =
-        Order ReportImageID ReportImage
-instance Enum ReportImageID where
-      toEnum = (ReportImageID . toEnum)
-      fromEnum = (fromEnum . unReportImageID)
-instance ToIntJS ReportImageID where
-      intJS = unReportImageID
 
-data ElemID
-    = ElemImageID {unElemImageID :: ReportImageID}
-    | ElemID {unElemID :: Report.ReportElemID}
-    deriving (Eq, Ord, Read, Show, Typeable, Data)
+data ReportElem = ReportUndecided deriving (Eq, Ord)
+type ReportElems = Order ReportElemID ReportElem
 
-data WhichList = LimitingConditionsList
-               | AuthorsList
-               | SourcesList
-               | AbbrevsList
-               | CertificationList
-               | GlossaryList
-               | ElementList
-               | ItemImage Report.ReportElemID
-               | TestDataList
-               deriving (Eq, Ord, Read, Show, Typeable, Data)
+data Report
+    = Report { reportBody :: ReportElems
+             }
 
-mat :: forall k a. (Show k, Ord k) => k -> Traversal' (M.Map k a) a
-mat k = lens (M.lookup k) (\ mp ma -> maybe mp (\ a -> M.insert k a mp) ma) . _Just
+type ReportID = ()
+type ReportMap = M.Map ReportID Report
 
-listReorder :: (WhichList, [ElemID]) -> ReportID -> ReportMap -> (ReportMap, [String])
-listReorder which rid rmp =
-  case which of
-    (ElementList, ps) ->
-        listReorder'' rmp (map unElemID ps) lns
-    (ItemImage _, _) ->
-        -- Removing or changing this makes the bug vanish
-        listReorder'' undefined undefined (undefined :: Traversal' ReportMap ReportImages)
+mat :: Traversal' (M.Map () a) a
+mat = lens (M.lookup ()) (\ mp ma -> maybe mp (\ a -> M.insert () a mp) ma) . _Just
+
+listReorder :: [ReportElemID] ->  ReportMap -> ReportMap
+listReorder ps rmp = listReorder'' rmp (map id ps) lns
     where
       lns :: Traversal' ReportMap ReportElems
-      lns = (lens (\(ReportMap x) -> x) (\ _ x -> ReportMap x)) . mat rid . lens_Report__reportBody . lens id (\_ x -> x)
-      lens_Report__reportBody f (Report x27 x28) = fmap (\y1 -> Report y1  x28) (f x27)
+      lns = lens id (\ _ x -> x) . mat . lens_Report__reportBody . lens id (\_ x -> x)
+      lens_Report__reportBody f (Report x27 ) = fmap (\y1 -> Report y1) (f x27)
 
-listReorder'' :: forall k v. (Show k, Enum k, OrderKey k) =>
-                 ReportMap -> [k] -> Traversal' ReportMap (Order k v) -> (ReportMap, [String])
+listReorder'' :: forall k v. (Enum k, OrderKey k) =>
+                 ReportMap -> [k] -> Traversal' ReportMap (Order k v) -> ReportMap
 listReorder'' rmp ps lns =
-    maybe (rmp, []) reorder (rmp ^? lns)
+    maybe (error "foo") reorder (rmp ^? lns)
     where
       reorder xs =
           case Order.permute ps xs of
-            (xs', [], []) ->
-                ((lns .~ xs') rmp,
-                 ["permutation: " ++ show ps,
-                  "original:    " ++ show (Order.order xs),
-                  "permuted:    " ++ show (Order.order xs')])
-            (_, deleted, invalid) ->
-                (rmp,
-                 ["Error reordering list:",
-                  "original: " ++ show (Order.order xs),
-                  "permuted: " ++ show ps,
-                  "deleted:  " ++ show (map fst deleted),
-                  "invalid:  " ++ show invalid])
+            (_, [], []) -> error "foo"

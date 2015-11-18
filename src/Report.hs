@@ -1,51 +1,12 @@
-{-# LANGUAGE DeriveDataTypeable, FlexibleContexts, FlexibleInstances, GeneralizedNewtypeDeriving, MultiParamTypeClasses,
-             OverloadedStrings, RecordWildCards, StandaloneDeriving, TypeSynonymInstances, TemplateHaskell, TypeFamilies #-}
-{-# OPTIONS -fcontext-stack=100 -fno-warn-orphans -fno-warn-missing-signatures -fno-warn-name-shadowing -fwarn-incomplete-patterns #-}
--- Removing this -O0 fixes the bug
 {-# OPTIONS_GHC -O0 -Wall -fno-warn-orphans #-}
 module Report
-    ( IntJS,
-      ToIntJS(intJS),
-      ReportElemID(..),
-      ReportElems,
-      Report(Report, reportUUID, reportBody),
-      ReportElem(ReportUndecided),
-      ReportID(ReportID, unReportID),
-      ReportMap(ReportMap, unReportMap)
+    ( module Report0
     ) where
 
-import Data.Data (Data, Typeable)
-import Data.Int (Int32)
-import qualified Data.Map as M (Map)
-import Prelude hiding (read)
-import Order (Order)
+import Report0
 
-type IntJS = Int32
-
-class ToIntJS k where
-    intJS :: k -> IntJS
-
-data ReportElem = ReportUndecided deriving (Show, Eq, Ord, Typeable, Data)
-
-newtype ReportElemID = ReportElemID {unReportElemID :: IntJS} deriving (Eq, Ord, Read, Show, Data, Typeable)
-type ReportElems = Order ReportElemID ReportElem
+instance Eq ReportElemID where (==) _ _ = error "unused"
+instance Ord ReportElemID where compare _ _ = error "unused"
 instance Enum ReportElemID where
-      toEnum = (ReportElemID . toEnum)
-      fromEnum = (fromEnum . unReportElemID)
-instance ToIntJS ReportElemID where
-      intJS = unReportElemID
-{-
-instance ToJSON ReportElemID where
-      toJSON = (toJSON . unReportElemID)
-instance FromJSON ReportElemID where
-      parseJSON = ((fmap ReportElemID) . parseJSON)
--}
-
-data Report
-    = Report { reportBody :: ReportElems
-             , reportUUID :: String
-             }
-    deriving (Show, Eq, Ord, Typeable, Data)
-
-newtype ReportID = ReportID { unReportID :: String } deriving (Eq, Ord, Read, Show, Typeable, Data)
-newtype ReportMap = ReportMap { unReportMap :: M.Map ReportID Report } deriving (Eq, Ord, Show, Typeable, Data)
+      toEnum = error "unused"
+      fromEnum = error "unused"
