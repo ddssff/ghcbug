@@ -6,13 +6,9 @@ module Main
     ( main
     ) where
 
-import Report (Report, ReportElem(ReportUndecided), reportUUID, reportBody, ReportElemID(ReportElemID),
+import Report (Report(Report), ReportElem(ReportUndecided), reportUUID, reportBody, ReportElemID(ReportElemID),
                ReportMap(ReportMap), ReportID(ReportID, unReportID))
-import Data.Data
-import Data.Generics.Aliases (extB)
-import Data.Int  (Int64, Int32)
 import qualified Data.Map as Map
-import qualified Data.Text as T (Text, empty)
 import Order hiding (order)
 import ListLens (listReorder, WhichList(ElementList), ElemID(ElemID))
 
@@ -29,36 +25,8 @@ main = print $ listReorder   (ElementList, order) rid reportMap'
 
       report :: Report
       report =
-          empty { reportUUID = unReportID rid
-                , reportBody = Order.fromList [ Report.ReportUndecided ] }
+          Report { reportUUID = unReportID rid
+                 , reportBody = Order.fromList [ Report.ReportUndecided ] }
 
       reportMap' :: ReportMap
       reportMap' = ReportMap $ Map.fromList [(rid, report)]
-
--- | Construct the empty value for a datatype. For algebraic datatypes, the
--- leftmost constructor is chosen.
-empty :: forall a. Data a => a
-empty = general
-      `extB` char
-      `extB` int
-      `extB` int64
-      `extB` int32
-      `extB` integer
-      `extB` float
-      `extB` double
-      `extB` text
-      `extB` uuid where
-  -- Generic case
-  general :: Data a => a
-  general = fromConstrB empty (indexConstr (dataTypeOf general) 1)
-
-  -- Base cases
-  char    = '\NUL'
-  int     = 0      :: Int
-  int64   = 0      :: Int64
-  int32   = 0      :: Int32
-  integer = 0      :: Integer
-  float   = 0.0    :: Float
-  double  = 0.0    :: Double
-  text    = T.empty :: T.Text
-  uuid    = ""
