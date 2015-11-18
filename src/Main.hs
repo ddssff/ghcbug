@@ -7,7 +7,7 @@ module Main
     ) where
 
 import Report ( ReportElemID(ReportElemID))
-import ListLens (Report(Report), ReportElem(ReportUndecided), reportBody, ReportMap)
+import ListLens ( ReportElems )
 import qualified Data.Map as Map
 import Order hiding (order)
 import ListLens (listReorder)
@@ -20,10 +20,8 @@ main = (`seq` return ()) $ listReorder order reportMap'
       order :: [ReportElemID]
       order = [ReportElemID 1]
 
-      report :: Report
-      report =
-          Report {reportBody = fst (Order.insert ReportUndecided Order.empty)
-                 }
+      report :: ReportElems
+      report = fst (Order.insert () Order.empty)
 
-      reportMap' :: ReportMap
-      reportMap' = Map.fromList [((), report)]
+      reportMap' :: ReportElems
+      reportMap' =  report

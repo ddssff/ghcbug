@@ -4,35 +4,19 @@
 module ListLens where
 
 import qualified Data.Map as M
-import Order (Order, order, insert, empty, permute, OrderKey)
-import Report (ReportElemID(..))
-import Data.Int (Int32)
-import Control.Applicative
-import Data.Monoid
+import Order (Order, permute, OrderKey)
+import Report (ReportElemID)
 
+type ReportElems = Order ReportElemID ()
 
-data ReportElem = ReportUndecided deriving (Eq, Ord)
-type ReportElems = Order ReportElemID ReportElem
+-- this indirection is needed
+listReorder :: [ReportElemID] ->  ReportElems -> ReportElems
+listReorder = listReorder'' 
 
-data Report
-    = Report { reportBody :: ReportElems
-             }
-
-type ReportID = ()
-type ReportMap = M.Map () Report
-
-listReorder :: [ReportElemID] ->  ReportMap -> ReportMap
-listReorder ps rmp = listReorder'' ps (foo rmp)
-
-foo :: ReportMap -> Maybe ReportElems
--- foo rmp = rmp ^? lns
-foo rmp = Just (reportBody (rmp M.! ()))
-
+-- Type signature is needed
 listReorder'' :: forall k v. (Enum k, OrderKey k) =>
-                 [k] -> (Maybe (Order k v)) -> ReportMap
-listReorder'' ps order =
-    maybe (error "foo") reorder order
+                 [k] -> Order k v -> ReportElems
+listReorder'' ps order = reorder
     where
-      reorder xs =
-          case Order.permute ps xs of
-            (_, [], []) -> error "foo"
+      -- This indirection is needed
+      reorder = Order.permute ps order `seq` error "reorder"
