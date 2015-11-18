@@ -11,7 +11,7 @@ class OrderKey k => OrderMap k where
     insert = init
 
     permute :: k -> k -> ()
-    permute k' k = k' == k `seq` error "done"
+    permute k' k = k' == k `seq` ()
 
 instance OrderKey k => OrderMap k
 

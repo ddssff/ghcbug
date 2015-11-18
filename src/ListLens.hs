@@ -3,7 +3,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module ListLens where
 
-import Report (ReportElemID)
+import Report
 import Order
 
 -- this indirection is needed
@@ -16,4 +16,4 @@ listReorder'' :: forall k. (Enum k, OrderKey k) =>
 listReorder'' ps order = reorder
     where
       -- This indirection is needed
-      reorder = Order.permute ps order `seq` error "reorder"
+      reorder = Order.permute ps order `seq` ReportElemID 1
