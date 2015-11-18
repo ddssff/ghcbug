@@ -3,12 +3,12 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module ListLens where
 
-import Lens.Micro (Traversal', lens, (^?), (.~), _Just)
-import qualified Data.Map as M (Map, insert, lookup)
-import Order (Order, order, permute, OrderKey)
+import qualified Data.Map as M
+import Order (Order, order, insert, empty, permute, OrderKey)
 import Report (ReportElemID(..))
 import Data.Int (Int32)
-
+import Control.Applicative
+import Data.Monoid
 
 
 data ReportElem = ReportUndecided deriving (Eq, Ord)
@@ -19,22 +19,19 @@ data Report
              }
 
 type ReportID = ()
-type ReportMap = M.Map ReportID Report
-
-mat :: Traversal' (M.Map () a) a
-mat = lens (M.lookup ()) (\ mp ma -> maybe mp (\ a -> M.insert () a mp) ma) . _Just
+type ReportMap = M.Map () Report
 
 listReorder :: [ReportElemID] ->  ReportMap -> ReportMap
-listReorder ps rmp = listReorder'' rmp (map id ps) lns
-    where
-      lns :: Traversal' ReportMap ReportElems
-      lns = lens id (\ _ x -> x) . mat . lens_Report__reportBody . lens id (\_ x -> x)
-      lens_Report__reportBody f (Report x27 ) = fmap (\y1 -> Report y1) (f x27)
+listReorder ps rmp = listReorder'' ps (foo rmp)
+
+foo :: ReportMap -> Maybe ReportElems
+-- foo rmp = rmp ^? lns
+foo rmp = Just (reportBody (rmp M.! ()))
 
 listReorder'' :: forall k v. (Enum k, OrderKey k) =>
-                 ReportMap -> [k] -> Traversal' ReportMap (Order k v) -> ReportMap
-listReorder'' rmp ps lns =
-    maybe (error "foo") reorder (rmp ^? lns)
+                 [k] -> (Maybe (Order k v)) -> ReportMap
+listReorder'' ps order =
+    maybe (error "foo") reorder order
     where
       reorder xs =
           case Order.permute ps xs of
