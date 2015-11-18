@@ -12,8 +12,8 @@ class Ord k => OrderKey k where
 class OrderKey k => OrderMap k where
     data Order k :: * -> *
 
-    insert :: v -> Order k v
-    insert a = Order init
+    insert :: Order k v
+    insert = Order init
 
     permute :: k -> Order k v -> ()
     permute neworder (Order k) = sanitize `seq` error "done"

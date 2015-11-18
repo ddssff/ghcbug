@@ -20,7 +20,7 @@ main = (`seq` return ()) $ listReorder order reportMap'
       order = ReportElemID 1
 
       report :: ReportElems
-      report = Order.insert ()
+      report = Order.insert
 
       reportMap' :: ReportElems
       reportMap' =  report
