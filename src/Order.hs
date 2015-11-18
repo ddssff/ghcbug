@@ -10,5 +10,5 @@ class OrderKey k => OrderMap k where
 
 instance OrderKey k => OrderMap k
 
-instance (Eq a) => OrderKey a where
+instance Eq a => OrderKey a where
     unused = error "unused"
